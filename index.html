@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undian Calon SLB Koperasi SDARA 2026</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Confetti JS -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
+        
+        .candidate-card input:checked + div {
+            border-color: #4f46e5;
+            background-color: #eef2ff;
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.25);
+            transform: translateY(-4px) scale(1.02);
+        }
+        .candidate-card input:checked + div .check-indicator {
+            border-color: #4f46e5;
+            background-color: #4f46e5;
+        }
+        .candidate-card input:checked + div .check-icon {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+            color: white;
+        }
+        .candidate-card input:disabled + div {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+            filter: grayscale(100%);
+        }
+        .check-indicator {
+            transition: all 0.3s ease;
+        }
+        .check-icon {
+            opacity: 0;
+            transform: scale(0) rotate(-45deg);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .card-base {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+        
+        .bg-animated-gradient {
+            background: linear-gradient(-45deg, #3b82f6, #4f46e5, #8b5cf6, #3b82f6);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen py-6 px-4 sm:px-6 lg:px-8 flex flex-col items-center bg-gray-50">
+
+    <div class="max-w-2xl w-full mx-auto" id="mainContainer">
+        <!-- Header -->
+        <div class="bg-animated-gradient rounded-t-3xl p-8 sm:p-10 text-white shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white rounded-full opacity-10 blur-2xl"></div>
+            <div class="relative z-10 animate-fade-in">
+                <div class="flex items-center space-x-4 mb-4">
+                    <div class="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
+                        <i class="fas fa-vote-yea text-3xl"></i>
+                    </div>
+                    <h1 class="text-2xl sm:text-4xl font-bold tracking-tight">UNDIAN CALON SLB</h1>
+                </div>
+                <h2 class="text-lg font-medium text-blue-100 mb-6">ALK KOPERASI SDARA 2026</h2>
+                
+                <div class="bg-white/10 rounded-2xl p-5 backdrop-blur-md border border-white/20 text-sm space-y-2">
+                    <p><i class="fas fa-exclamation-circle text-yellow-300 mr-2"></i> Pilih <strong>tepat 2 orang calon</strong> bagi setiap kategori.</p>
+                    <p><i class="fas fa-lock text-yellow-300 mr-2"></i> Undian adalah sulit dan muktamad.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Borang -->
+        <form id="votingForm" class="bg-white shadow-2xl rounded-b-3xl p-6 sm:p-10 relative border border-gray-100">
+            
+            <!-- Notifikasi Status Sambungan -->
+            <div id="statusAlert" class="mb-6 p-4 rounded-xl text-sm hidden">
+                <p id="statusMsg"></p>
+            </div>
+
+            <div class="mb-10 animate-fade-in delay-100">
+                <h3 class="text-xl font-bold text-gray-800 border-b-2 border-gray-100 pb-3 mb-5 flex items-center">
+                    <i class="fas fa-user-edit text-indigo-600 mr-3"></i>Maklumat Pengundi
+                </h3>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <input type="text" id="namaPenuh" required class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 bg-gray-50 transition-all" placeholder="Nama Penuh">
+                    <input type="text" id="kelas" required class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 bg-gray-50 transition-all" placeholder="Kelas (Contoh: 4S1)">
+                </div>
+            </div>
+
+            <!-- Tingkatan 4 -->
+            <div class="mb-10 animate-fade-in delay-200">
+                <div class="flex justify-between items-center border-b-2 border-gray-100 pb-3 mb-5">
+                    <h3 class="text-xl font-bold text-gray-800">Tingkatan 4</h3>
+                    <span id="counterT4" class="text-sm font-bold px-3 py-1 rounded-lg bg-indigo-100 text-indigo-800">Pilih 2</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label class="candidate-card cursor-pointer"><input type="checkbox" value="Uthman" class="sr-only cb-t4"><div class="card-base border-2 border-gray-200 rounded-2xl p-5 flex items-center justify-between"><span class="font-semibold text-lg">Uthman</span><i class="fas fa-check-circle text-indigo-600 check-icon"></i></div></label>
+                    <label class="candidate-card cursor-pointer"><input type="checkbox" value="Aifa" class="sr-only cb-t4"><div class="card-base border-2 border-gray-200 rounded-2xl p-5 flex items-center justify-between"><span class="font-semibold text-lg">Aifa</span><i class="fas fa-check-circle text-indigo-600 check-icon"></i></div></label>
+                    <label class="candidate-card cursor-pointer"><input type="checkbox" value="Sabrina" class="sr-only cb-t4"><div class="card-base border-2 border-gray-200 rounded-2xl p-5 flex items-center justify-between"><span class="font-semibold text-lg">Sabrina</span><i class="fas fa-check-circle text-indigo-600 check-icon"></i></div></label>
+                    <label class="candidate-card cursor-pointer"><input type="checkbox" value="Danial" class="sr-only cb-t4"><div class="card-base border-2 border-gray-200 rounded-2xl p-5 flex items-center justify-between"><span class="font-semibold text-lg">Danial</span><i class="fas fa-check-circle text-indigo-600 check-icon"></i></div></label>
+                </div>
+                <p id="errorT4" class="text-red-500 text-sm mt-2 hidden">Sila pilih tepat 2 orang.</p>
+            </div>
+
+            <!-- Tingkatan 3 -->
+            <div class="mb-10 animate-fade-in delay-300">
+                <div class="flex justify-between items-center border-b-2 border-gray-100 pb-3 mb-5">
+                    <h3 class="text-xl font-bold text-gray-800">Tingkatan 3</h3>
+                    <span id="counterT3" class="text-sm font-bold px-3 py-1 rounded-lg bg-indigo-100 text-indigo-800">Pilih 2</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label class="candidate-card cursor-pointer"><input type="checkbox" value="Surfina" class="sr-only cb-t3"><div class="card-base border-2 border-gray-200 rounded-2xl p-5 flex items-center justify-between"><span class="font-semibold text-lg">Surfina</span><i class="fas fa-check-circle text-indigo-600 check-icon"></i></div></label>
+                    <label class="candidate-card cursor-pointer"><input type="checkbox" value="Bazla" class="sr-only cb-t3"><div class="card-base border-2 border-gray-200 rounded-2xl p-5 flex items-center justify-between"><span class="font-semibold text-lg">Bazla</span><i class="fas fa-check-circle text-indigo-600 check-icon"></i></div></label>
+                    <label class="candidate-card cursor-pointer"><input type="checkbox" value="Fakhri" class="sr-only cb-t3"><div class="card-base border-2 border-gray-200 rounded-2xl p-5 flex items-center justify-between"><span class="font-semibold text-lg">Fakhri</span><i class="fas fa-check-circle text-indigo-600 check-icon"></i></div></label>
+                    <label class="candidate-card cursor-pointer"><input type="checkbox" value="Aisy" class="sr-only cb-t3"><div class="card-base border-2 border-gray-200 rounded-2xl p-5 flex items-center justify-between"><span class="font-semibold text-lg">Aisy</span><i class="fas fa-check-circle text-indigo-600 check-icon"></i></div></label>
+                </div>
+                <p id="errorT3" class="text-red-500 text-sm mt-2 hidden">Sila pilih tepat 2 orang.</p>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-xl transition-all flex justify-center items-center text-lg">
+                Hantar Undian <i class="fas fa-paper-plane ml-3"></i>
+            </button>
+        </form>
+
+        <div id="successMessage" class="hidden bg-white shadow-2xl rounded-3xl p-10 text-center border-t-8 border-emerald-500 mt-6 animate-fade-in">
+            <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-check text-4xl text-emerald-500"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Undian Berjaya!</h2>
+            <p class="text-gray-600">Terima kasih kerana membuang undi secara telus.</p>
+        </div>
+
+        <!-- Admin -->
+        <div class="text-center mt-8 mb-6">
+            <button id="btnShowAdmin" class="text-gray-400 hover:text-indigo-600 text-sm font-medium transition-colors">
+                <i class="fas fa-lock mr-2"></i>Akses Admin
+            </button>
+        </div>
+
+        <div id="adminDashboard" class="hidden bg-white shadow-2xl rounded-3xl p-8 border-t-8 border-indigo-500 mb-8 animate-fade-in">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h2 class="text-2xl font-bold text-gray-800">Keputusan Live</h2>
+                <button id="btnCloseAdmin" class="text-red-500 hover:bg-red-50 p-2 rounded-full"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="space-y-8">
+                <div><h3 class="font-bold text-lg mb-4">Tingkatan 4</h3><ul id="resultT4" class="space-y-4"></ul></div>
+                <div><h3 class="font-bold text-lg mb-4">Tingkatan 3</h3><ul id="resultT3" class="space-y-4"></ul></div>
+            </div>
+            <div class="mt-8 pt-4 border-t flex justify-between font-bold text-lg">
+                <span>Jumlah Pengundi:</span>
+                <span id="totalVoters" class="text-indigo-600">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global environment variables
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyAfCoSzBXpzjc3Wb5AG9bmIAqKJ_3DEUL4",
+            authDomain: "undi-slb.firebaseapp.com",
+            projectId: "undi-slb",
+            storageBucket: "undi-slb.firebasestorage.app",
+            messagingSenderId: "189882281744",
+            appId: "1:189882281744:web:5588d26e6b5bceb5783f95"
+        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'undi-slb-custom';
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let votesCol = null;
+        let voteTally = { tingkatan4: {}, tingkatan3: {} };
+
+        const updateStatus = (msg, type) => {
+            const alert = document.getElementById('statusAlert');
+            const msgEl = document.getElementById('statusMsg');
+            alert.className = `mb-6 p-4 rounded-xl text-sm ${type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`;
+            alert.classList.remove('hidden');
+            msgEl.innerText = msg;
+        };
+
+        // CRITICAL FIX: Authentication before any query
+        const init = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.error("Auth failed:", err);
+                updateStatus("Ralat sekuriti Firebase. Sila pastikan API Firestore telah diaktifkan di Console.", "error");
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) return;
+            currentUser = user;
+            // CRITICAL FIX: Use mandated path structure
+            votesCol = collection(db, 'artifacts', appId, 'public', 'data', 'undian');
+            
+            // Live listener
+            onSnapshot(votesCol, (snap) => {
+                const tally = { 
+                    tingkatan4: { 'Uthman':0,'Aifa':0,'Sabrina':0,'Danial':0 },
+                    tingkatan3: { 'Surfina':0,'Bazla':0,'Fakhri':0,'Aisy':0 }
+                };
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    d.t4?.forEach(v => tally.tingkatan4[v]++);
+                    d.t3?.forEach(v => tally.tingkatan3[v]++);
+                });
+                voteTally = tally;
+                document.getElementById('totalVoters').innerText = snap.size;
+                if(!document.getElementById('adminDashboard').classList.contains('hidden')) {
+                    renderCharts();
+                }
+            }, (err) => {
+                console.error("Firestore error:", err);
+                if(err.code === 'permission-denied') {
+                    updateStatus("Ralat Kebenaran (Permission Denied). Sila tetapkan rules Firestore kepada 'allow read, write: if true;' di Console.", "error");
+                }
+            });
+        });
+
+        init();
+
+        const validateSelections = (cls) => {
+            const count = document.querySelectorAll(`${cls}:checked`).length;
+            const boxes = document.querySelectorAll(cls);
+            boxes.forEach(b => { if(!b.checked) b.disabled = (count >= 2); });
+            return count;
+        };
+
+        ['.cb-t4', '.cb-t3'].forEach(cls => {
+            document.querySelectorAll(cls).forEach(el => el.addEventListener('change', () => {
+                const count = validateSelections(cls);
+                const target = cls === '.cb-t4' ? 'counterT4' : 'counterT3';
+                document.getElementById(target).innerText = count === 2 ? "Lengkap" : `Pilih ${2-count}`;
+            }));
+        });
+
+        document.getElementById('votingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const t4 = Array.from(document.querySelectorAll('.cb-t4:checked')).map(b => b.value);
+            const t3 = Array.from(document.querySelectorAll('.cb-t3:checked')).map(b => b.value);
+
+            if(t4.length !== 2 || t3.length !== 2) {
+                alert("Sila pilih tepat 2 orang bagi setiap tingkatan.");
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "Menghantar...";
+
+            try {
+                await addDoc(votesCol, {
+                    nama: document.getElementById('namaPenuh').value,
+                    kelas: document.getElementById('kelas').value,
+                    t4, t3, timestamp: new Date()
+                });
+                document.getElementById('votingForm').classList.add('hidden');
+                document.getElementById('successMessage').classList.remove('hidden');
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            } catch (err) {
+                console.error(err);
+                alert("Gagal menghantar undian. Sila periksa sambungan internet.");
+                btn.disabled = false;
+                btn.innerText = "Hantar Undian";
+            }
+        });
+
+        const renderCharts = () => {
+            ['resultT4', 'resultT3'].forEach(id => {
+                const list = document.getElementById(id);
+                list.innerHTML = '';
+                const data = id === 'resultT4' ? voteTally.tingkatan4 : voteTally.tingkatan3;
+                const max = Math.max(...Object.values(data), 1);
+                
+                Object.entries(data).sort((a,b) => b[1] - a[1]).forEach(([name, votes]) => {
+                    const perc = (votes / max) * 100;
+                    list.innerHTML += `
+                        <li>
+                            <div class="flex justify-between text-sm font-bold mb-1"><span>${name}</span><span>${votes}</span></div>
+                            <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                <div class="bg-indigo-600 h-full transition-all duration-1000 shadow-[0_0_8px_rgba(79,70,229,0.5)]" style="width: ${perc}%"></div>
+                            </div>
+                        </li>
+                    `;
+                });
+            });
+        };
+
+        document.getElementById('btnShowAdmin').onclick = () => {
+            if(prompt("Kata Laluan Admin:") === 'admin123') {
+                document.getElementById('votingForm').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                renderCharts();
+            }
+        };
+
+        document.getElementById('btnCloseAdmin').onclick = () => {
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('votingForm').classList.remove('hidden');
+        };
+    </script>
+</body>
+</html>
