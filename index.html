@@ -173,6 +173,20 @@
                 <div><h3 class="font-bold text-lg mb-4">Tingkatan 4</h3><ul id="resultT4" class="space-y-4"></ul></div>
                 <div><h3 class="font-bold text-lg mb-4">Tingkatan 3</h3><ul id="resultT3" class="space-y-4"></ul></div>
             </div>
+
+            <!-- Tambahan: Senarai Pengundi -->
+            <div class="mt-10 border-t-2 border-gray-100 pt-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-5 flex items-center">
+                    <i class="fas fa-list-alt text-indigo-600 mr-3"></i>
+                    Senarai Pengundi
+                </h3>
+                <div class="max-h-64 overflow-y-auto bg-gray-50 rounded-xl border border-gray-200 p-4 shadow-inner">
+                    <ul id="votersList" class="space-y-3">
+                        <!-- Diisi oleh JS -->
+                    </ul>
+                </div>
+            </div>
+
             <div class="mt-8 pt-4 border-t flex justify-between font-bold text-lg">
                 <span>Jumlah Pengundi:</span>
                 <span id="totalVoters" class="text-indigo-600">0</span>
@@ -203,6 +217,7 @@
         let currentUser = null;
         let votesCol = null;
         let voteTally = { tingkatan4: {}, tingkatan3: {} };
+        let votersData = []; // Menyimpan senarai pengundi
 
         const updateStatus = (msg, type) => {
             const alert = document.getElementById('statusAlert');
@@ -238,15 +253,32 @@
                     tingkatan4: { 'Uthman':0,'Aifa':0,'Sabrina':0,'Danial':0 },
                     tingkatan3: { 'Surfina':0,'Bazla':0,'Fakhri':0,'Aisy':0 }
                 };
+                const tempVoters = [];
+
                 snap.forEach(doc => {
                     const d = doc.data();
                     d.t4?.forEach(v => tally.tingkatan4[v]++);
                     d.t3?.forEach(v => tally.tingkatan3[v]++);
+
+                    // Rekod data pengundi untuk senarai
+                    let tarikhStr = "Tiada Tarikh";
+                    if (d.timestamp) {
+                        const dateObj = d.timestamp.toDate ? d.timestamp.toDate() : new Date(d.timestamp);
+                        tarikhStr = dateObj.toLocaleString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+                    }
+                    tempVoters.push({
+                        nama: d.nama || 'Tanpa Nama',
+                        kelas: d.kelas || 'Tiada Kelas',
+                        tarikh: tarikhStr
+                    });
                 });
                 voteTally = tally;
+                votersData = tempVoters;
+
                 document.getElementById('totalVoters').innerText = snap.size;
                 if(!document.getElementById('adminDashboard').classList.contains('hidden')) {
                     renderCharts();
+                    renderVoters();
                 }
             }, (err) => {
                 console.error("Firestore error:", err);
@@ -325,11 +357,32 @@
             });
         };
 
+        const renderVoters = () => {
+            const list = document.getElementById('votersList');
+            list.innerHTML = '';
+            if (votersData.length === 0) {
+                list.innerHTML = '<li class="text-gray-500 text-sm text-center py-4">Belum ada pengundi merekodkan undian.</li>';
+                return;
+            }
+            votersData.forEach((v, index) => {
+                list.innerHTML += `
+                    <li class="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm border border-gray-100 animate-fade-in">
+                        <div>
+                            <p class="font-bold text-gray-800 text-sm">${index + 1}. ${v.nama}</p>
+                            <p class="text-xs text-indigo-600 font-medium">${v.kelas}</p>
+                        </div>
+                        <span class="text-[10px] text-gray-500 bg-gray-100 px-2 py-1 rounded text-right whitespace-nowrap ml-2">${v.tarikh}</span>
+                    </li>
+                `;
+            });
+        };
+
         document.getElementById('btnShowAdmin').onclick = () => {
             if(prompt("Kata Laluan Admin:") === 'admin123') {
                 document.getElementById('votingForm').classList.add('hidden');
                 document.getElementById('adminDashboard').classList.remove('hidden');
                 renderCharts();
+                renderVoters();
             }
         };
 
